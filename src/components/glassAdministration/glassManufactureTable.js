@@ -56,7 +56,11 @@ export default function GlassManufactureTable() {
     let addGlassManufacture = (addedGlassManufacture) => {
         apiAddGlassManufacture(addedGlassManufacture.name).then((response)=>{
             updateTable(response.data);
+//<<<<<<< HEAD
             sendNotification("Новая обработка стекла успешно создана!", "Ура!", "success");
+//=======
+//            sendNotification("Новая обработка стекла успешно сОзДаНа!", "Ура!", "success");
+//>>>>>>> test_branch2
         }).catch(err=>{
             sendNotification("Не удалось добавить обработку стекла в базу данных!", `${err.response.data.msg}`, "danger");
         });
@@ -71,7 +75,7 @@ export default function GlassManufactureTable() {
                     apiUpdateGlassManufacture(editedGlassManufacture.dbId,
                         editedGlassManufacture.name).then((response)=>{
                         updateTable(response.data);
-                        sendNotification("Данные об обработке стекла успешно обновлены!", "Ура!", "success");
+                        sendNotification("Данные об обработке стекла успешно иЗмЕнЕнА!", "Ура!", "success");
                     }).catch(err=>{
                         sendNotification("Не удалось изменить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
                     });
