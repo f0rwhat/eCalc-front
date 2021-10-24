@@ -68,7 +68,7 @@ export default function GlassTypeTable() {
             addedGlassType.discount,
             addedGlassType.markup).then((response)=>{
             updateTable(response.data);
-            sendNotification("Новый тип стекла успешно добавлен!", "Ура!", "success");
+            sendNotification("Новый тип стекла успешно создан!", "Внимание!", "success");
         }).catch(err=>{
             sendNotification("Не удалось добавить тип стекла в базу данных!", `${err.response.data.msg}`, "danger");
         });
