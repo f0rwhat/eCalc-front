@@ -18,7 +18,6 @@ export default function GlassManufactureTable() {
     const [selectedRow, setSelectedRow] = useState(0);
     const [lastEditModel, setLastEditModel] = useState({});
     const [data, setData] = useState([]);
-
     useEffect(() => {
         apiGetGlassManufacturesList().then((response)=>{
             updateTable(response.data);
@@ -57,7 +56,7 @@ export default function GlassManufactureTable() {
     let addGlassManufacture = (addedGlassManufacture) => {
         apiAddGlassManufacture(addedGlassManufacture.name).then((response)=>{
             updateTable(response.data);
-            sendNotification("Новая обработка стекла успешно добавлена!", "Ура!", "success");
+            sendNotification("Новая обработка стекла успешно создана!", "Ура!", "success");
         }).catch(err=>{
             sendNotification("Не удалось добавить обработку стекла в базу данных!", `${err.response.data.msg}`, "danger");
         });
@@ -74,7 +73,7 @@ export default function GlassManufactureTable() {
                         updateTable(response.data);
                         sendNotification("Данные об обработке стекла успешно обновлены!", "Ура!", "success");
                     }).catch(err=>{
-                        sendNotification("Не удалось обновить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
+                        sendNotification("Не удалось изменить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
                     });
                 }
             }
