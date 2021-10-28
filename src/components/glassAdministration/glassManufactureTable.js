@@ -18,6 +18,30 @@ export default function GlassManufactureTable() {
     const [selectedRow, setSelectedRow] = useState(0);
     const [lastEditModel, setLastEditModel] = useState({});
     const [data, setData] = useState([]);
+    const [ws] = useState(() => {
+        let socket = new WebSocket(`ws://${process.env.REACT_APP_BACK_ADDR}:8000/ws/glass/manufacture`)
+        socket.onmessage = (ev) => {
+            let message = JSON.parse(ev.data)
+            console.log(message)
+            if (message.message_type === 'get') {
+                console.log(message.data)
+                updateTable(message.data)
+            }
+
+            if (message.message_type === 'notification') {
+                let notification_type = ''
+                if (message.data.notification_type === 'success') {
+                    notification_type = 'success'
+                }
+                if (message.data.notification_type === 'error') {
+                    notification_type = 'danger'
+                }
+                sendNotification(message.data.header, message.data.message, notification_type);
+            }
+        }
+        return socket
+    })
+
     useEffect(() => {
         apiGetGlassManufacturesList().then((response)=>{
             updateTable(response.data);
@@ -54,16 +78,21 @@ export default function GlassManufactureTable() {
     };
 
     let addGlassManufacture = (addedGlassManufacture) => {
-        apiAddGlassManufacture(addedGlassManufacture.name).then((response)=>{
-            updateTable(response.data);
-//<<<<<<< HEAD
-            sendNotification("Новая обработка стекла успешно создана!", "Ура!", "success");
-//=======
-//            sendNotification("Новая обработка стекла успешно сОзДаНа!", "Ура!", "success");
-//>>>>>>> test_branch2
-        }).catch(err=>{
-            sendNotification("Не удалось добавить обработку стекла в базу данных!", `${err.response.data.msg}`, "danger");
-        });
+        let request = {
+            message_type: "add",
+            data: {
+                name: addedGlassManufacture.name,
+            }
+        }
+        let request_json = JSON.stringify(request)
+        console.log(request_json)
+        ws.send(request_json)
+        // apiAddGlassManufacture(addedGlassManufacture.name).then((response)=>{
+        //     updateTable(response.data);
+        //     sendNotification("Новая обработка стекла успешно добавлена!", "Ура!", "success");
+        // }).catch(err=>{
+        //     sendNotification("Не удалось добавить обработку стекла в базу данных!", `${err.response.data.msg}`, "danger");
+        // });
     }
 
     let updateGlassManufacture = (editedGlassManufacture) => {
@@ -72,13 +101,23 @@ export default function GlassManufactureTable() {
                 let hasChanges = oldGlassManufacture.name !== editedGlassManufacture.name;
                 if (hasChanges)
                 {
-                    apiUpdateGlassManufacture(editedGlassManufacture.dbId,
-                        editedGlassManufacture.name).then((response)=>{
-                        updateTable(response.data);
-                        sendNotification("Данные об обработке стекла успешно иЗмЕнЕнА!", "Ура!", "success");
-                    }).catch(err=>{
-                        sendNotification("Не удалось изменить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
-                    });
+                    let request = {
+                        message_type: "update",
+                        data: {
+                            id: editedGlassManufacture.dbId,
+                            name: editedGlassManufacture.name,
+                        }
+                    }
+                    let request_json = JSON.stringify(request)
+                    console.log(request_json)
+                    ws.send(request_json)
+                    // apiUpdateGlassManufacture(editedGlassManufacture.dbId,
+                    //     editedGlassManufacture.name).then((response)=>{
+                    //     updateTable(response.data);
+                    //     sendNotification("Данные об обработке стекла успешно изменены!", "Ура!", "success");
+                    // }).catch(err=>{
+                    //     sendNotification("Не удалось изменить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
+                    // });
                 }
             }
         });
@@ -88,13 +127,22 @@ export default function GlassManufactureTable() {
         data.forEach(glass_manufacture => {
             if (glass_manufacture.id === selectedRow)
             {
-                apiDeleteGlassManufacture(glass_manufacture.dbId).then((response)=>{
-                    updateTable(response.data);
-                    sendNotification("Обработка стекла успешно удалена!", "Ура!", "success");
-                }).catch(err=>{
-                    sendNotification("Не удалось удалить обработку стекла!", `${err.response.data.msg}`, "danger");
-                    console.log(err);
-                });
+                let request = {
+                    message_type: "delete",
+                    data: {
+                        id: glass_manufacture.dbId,
+                    }
+                }
+                let request_json = JSON.stringify(request)
+                console.log(request_json)
+                ws.send(request_json)
+                // apiDeleteGlassManufacture(glass_manufacture.dbId).then((response)=>{
+                //     updateTable(response.data);
+                //     sendNotification("Обработка стекла успешно удалена!", "Ура!", "success");
+                // }).catch(err=>{
+                //     sendNotification("Не удалось удалить обработку стекла!", `${err.response.data.msg}`, "danger");
+                //     console.log(err);
+                // });
             }
         });
     }
@@ -107,6 +155,8 @@ export default function GlassManufactureTable() {
                 name: glass_manufacture.name,
             });
         });
+        console.log('UPDATE TABLE');
+        console.log(_glass_manufactures);
         setData(_glass_manufactures);
     }
 

@@ -19,17 +19,49 @@ export default function GlassManufacturePriceTable() {
     const [priceData, setPriceData] = useState([]);
     const [typeData, setTypeData] = useState([]);
     const [manufactureData, setManufactureData] = useState([]);
-    const [ws, setWs] = useState(() => {
-        let socket = new WebSocket(`ws://${process.env.REACT_APP_BACK_ADDR}:8000/ws/glass/type/all`)
+    const [priceWS] = useState(() => {
+        let socket = new WebSocket(`ws://${process.env.REACT_APP_BACK_ADDR}:8000/ws/glass/price`)
         socket.onmessage = (ev) => {
-            //console.log('WS EVENT')
-            //console.log(JSON.parse(ev.data))
-            if(JSON.parse(ev.data)!== typeData)
-                setTypeData(JSON.parse(ev.data))
+            let message = JSON.parse(ev.data)
+            if (message.message_type === 'get') {
+                setPriceData(message.data)
+            }
+
+            if (message.message_type === 'notification') {
+                let notification_type = ''
+                if (message.data.notification_type === 'success') {
+                    notification_type = 'success'
+                }
+                if (message.data.notification_type === 'error') {
+                    notification_type = 'danger'
+                }
+                sendNotification(message.data.header, message.data.message, notification_type);
+            }
         }
         return socket
     })
-    const [interval] = useState(setInterval(() => ws.send('echo'), 1000));
+    const [typeWS] = useState(() => {
+        let socket = new WebSocket(`ws://${process.env.REACT_APP_BACK_ADDR}:8000/ws/glass/type`)
+        socket.onmessage = (ev) => {
+            let message = JSON.parse(ev.data)
+            if (message.message_type === 'get') {
+                setTypeData(message.data)
+            }
+        }
+        return socket
+    })
+    const [manufactureWS] = useState(() => {
+        let socket = new WebSocket(`ws://${process.env.REACT_APP_BACK_ADDR}:8000/ws/glass/manufacture`)
+        socket.onmessage = (ev) => {
+            let message = JSON.parse(ev.data)
+            console.log(message)
+            if (message.message_type === 'get') {
+                console.log(message.data)
+                setManufactureData(message.data)
+            }
+        }
+        return socket
+    })
 
 
     useEffect(() => {
@@ -40,9 +72,9 @@ export default function GlassManufacturePriceTable() {
             setManufactureData(manufactureResponse.data);
 
         });
-        //apiGetGlassTypesList().then((glassTypeResponse)=>{
-        //    setTypeData(glassTypeResponse.data);
-        //});
+        apiGetGlassTypesList().then((glassTypeResponse)=>{
+            setTypeData(glassTypeResponse.data);
+        });
     }, []);
 
     useEffect(() => {
@@ -72,15 +104,23 @@ export default function GlassManufacturePriceTable() {
     };
 
     let handleStopEditing = (rowModel) => {
+
         let editedModel = {
             id:rowModel.row.id,
             type_id: rowModel.row.type_db_id,
             manufacture_id: rowModel.field,
             price: lastEditModel[rowModel.row.id][rowModel.field].value === undefined ? null : lastEditModel[rowModel.row.id][rowModel.field].value
         };
-        let oldValue = rowModel.value;
+
         if (editedModel.price !== '') {
-            if (oldValue === undefined) {
+            let isEditedCellExistInData = false
+            priceData.forEach(priceCell => {
+                if (priceCell.glass_id === rowModel.row.type_db_id && priceCell.manufacture_id === rowModel.field){
+                    isEditedCellExistInData = true
+                    return;
+                }
+            })
+            if (isEditedCellExistInData === false) {
                 addGlassManufacturePrice(editedModel.type_id, editedModel.manufacture_id, editedModel.price)
             } else {
                 updateGlassManufacturePrice(editedModel.type_id, editedModel.manufacture_id, editedModel.price)
@@ -91,30 +131,62 @@ export default function GlassManufacturePriceTable() {
     };
 
     let addGlassManufacturePrice = (type_id, manufacture_id, price) => {
-        apiAddGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
-            setPriceData(response.data);
-            sendNotification("Цена успешно добавлена!", "Ура!", "success");
-        }).catch(err => {
-            sendNotification("Не удалось добавить цену!", `${err.response.data.msg}`, "danger");
-        })
+        let request = {
+            message_type: "add",
+            data: {
+                glass_type_id: type_id,
+                glass_manufacture_id: manufacture_id,
+                price: price
+            }
+        }
+        let request_json = JSON.stringify(request)
+        console.log(request_json)
+        priceWS.send(request_json)
+        // apiAddGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
+        //     setPriceData(response.data);
+        //     sendNotification("Цена успешно добавлена!", "Ура!", "success");
+        // }).catch(err => {
+        //     sendNotification("Не удалось добавить цену!", `${err.response.data.msg}`, "danger");
+        // })
     }
 
     let updateGlassManufacturePrice = (type_id, manufacture_id, price) => {
-        apiUpdateGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
-            setPriceData(response.data);
-            sendNotification("Цена успешно обновлена!", "Ура!", "success");
-        }).catch(err => {
-            sendNotification("Не удалось обновить цену!", `${err.response.data.msg}`, "danger");
-        })
+        let request = {
+            message_type: "update",
+            data: {
+                glass_type_id: type_id,
+                glass_manufacture_id: manufacture_id,
+                price: price
+            }
+        }
+        let request_json = JSON.stringify(request)
+        console.log(request_json)
+        priceWS.send(request_json)
+        // apiUpdateGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
+        //     setPriceData(response.data);
+        //     sendNotification("Цена успешно обновлена!", "Ура!", "success");
+        // }).catch(err => {
+        //     sendNotification("Не удалось обновить цену!", `${err.response.data.msg}`, "danger");
+        // })
     }
 
     let deleteManufacturePrice = (type_id, manufacture_id) => {
-        apiDeleteGlassManufacturePrice(type_id, manufacture_id).then(response => {
-            setPriceData(response.data);
-            sendNotification("Цена успешно удалена!", "Ура!", "success");
-        }).catch(err => {
-            sendNotification("Не удалось удалить цену!", `${err.response.data.msg}`, "danger");
-        })
+        let request = {
+            message_type: "delete",
+            data: {
+                glass_type_id: type_id,
+                glass_manufacture_id: manufacture_id
+            }
+        }
+        let request_json = JSON.stringify(request)
+        console.log(request_json)
+        priceWS.send(request_json)
+        // apiDeleteGlassManufacturePrice(type_id, manufacture_id).then(response => {
+        //     setPriceData(response.data);
+        //     sendNotification("Цена успешно удалена!", "Ура!", "success");
+        // }).catch(err => {
+        //     sendNotification("Не удалось удалить цену!", `${err.response.data.msg}`, "danger");
+        // })
     }
 
     let sendNotification = (title, message, type) => {
