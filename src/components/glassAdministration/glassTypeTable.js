@@ -43,7 +43,6 @@ export default function GlassTypeTable() {
         }
         return socket
     })
-    //const [interval] = useState(setInterval(() => ws.send('echo'), 1000));
 
     useEffect(() => {
         apiGetGlassTypesList().then((response)=>{
@@ -96,14 +95,6 @@ export default function GlassTypeTable() {
         let request_json = JSON.stringify(request)
         console.log(request_json)
         ws.send(request_json)
-        // apiAddGlassType(addedGlassType.name,
-        //     addedGlassType.discount,
-        //     addedGlassType.markup).then((response)=>{
-        //     updateTable(response.data);
-        //     sendNotification("Новый тип стекла успешно создан!", "Внимание!", "success");
-        // }).catch(err=>{
-        //     sendNotification("Не удалось добавить тип стекла в базу данных!", `${err.response.data.msg}`, "danger");
-        // });
     }
 
     let updateGlassType = (editedGlassType) => {
@@ -126,15 +117,6 @@ export default function GlassTypeTable() {
                     let request_json = JSON.stringify(request)
                     console.log(request_json)
                     ws.send(request_json)
-                    // apiUpdateGlassType(editedGlassType.dbId,
-                    //     editedGlassType.name,
-                    //     editedGlassType.discount,
-                    //     editedGlassType.markup).then((response)=>{
-                    //     updateTable(response.data);
-                    //     sendNotification("Данные о типе стекла успешно обновлены!", "Ура!", "success");
-                    // }).catch(err=>{
-                    //     sendNotification("Не удалось обновить данные о типе стекла!", `${err.response.data.msg}`, "danger");
-                    // });
                 }
             }
         });
@@ -156,13 +138,6 @@ export default function GlassTypeTable() {
                 console.log(glass_type)
                 console.log(selectedRow)
                 ws.send(request_json)
-                // apiDeleteGlassType(glass_type.dbId).then((response)=>{
-                //     updateTable(response.data);
-                //     sendNotification("Тип стекла успешно удален!", "Ура!", "success");
-                // }).catch(err=>{
-                //     sendNotification("Не удалось удалить тип стекла!", `${err.response.data.msg}`, "danger");
-                //     console.log(err);
-                // });
             }
         });
     }

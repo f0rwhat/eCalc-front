@@ -115,8 +115,9 @@ export default function GlassManufacturePriceTable() {
         if (editedModel.price !== '') {
             let isEditedCellExistInData = false
             priceData.forEach(priceCell => {
-                if (priceCell.glass_id === rowModel.row.type_db_id && priceCell.manufacture_id === rowModel.field){
+                if (priceCell.glass_id === rowModel.row.type_db_id && priceCell.manufacture_id === rowModel.row.id){
                     isEditedCellExistInData = true
+                    console.log('found!')
                     return;
                 }
             })
@@ -142,12 +143,6 @@ export default function GlassManufacturePriceTable() {
         let request_json = JSON.stringify(request)
         console.log(request_json)
         priceWS.send(request_json)
-        // apiAddGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
-        //     setPriceData(response.data);
-        //     sendNotification("Цена успешно добавлена!", "Ура!", "success");
-        // }).catch(err => {
-        //     sendNotification("Не удалось добавить цену!", `${err.response.data.msg}`, "danger");
-        // })
     }
 
     let updateGlassManufacturePrice = (type_id, manufacture_id, price) => {
@@ -162,12 +157,6 @@ export default function GlassManufacturePriceTable() {
         let request_json = JSON.stringify(request)
         console.log(request_json)
         priceWS.send(request_json)
-        // apiUpdateGlassManufacturePrice(type_id, manufacture_id, price).then(response => {
-        //     setPriceData(response.data);
-        //     sendNotification("Цена успешно обновлена!", "Ура!", "success");
-        // }).catch(err => {
-        //     sendNotification("Не удалось обновить цену!", `${err.response.data.msg}`, "danger");
-        // })
     }
 
     let deleteManufacturePrice = (type_id, manufacture_id) => {
@@ -181,12 +170,6 @@ export default function GlassManufacturePriceTable() {
         let request_json = JSON.stringify(request)
         console.log(request_json)
         priceWS.send(request_json)
-        // apiDeleteGlassManufacturePrice(type_id, manufacture_id).then(response => {
-        //     setPriceData(response.data);
-        //     sendNotification("Цена успешно удалена!", "Ура!", "success");
-        // }).catch(err => {
-        //     sendNotification("Не удалось удалить цену!", `${err.response.data.msg}`, "danger");
-        // })
     }
 
     let sendNotification = (title, message, type) => {

@@ -87,12 +87,6 @@ export default function GlassManufactureTable() {
         let request_json = JSON.stringify(request)
         console.log(request_json)
         ws.send(request_json)
-        // apiAddGlassManufacture(addedGlassManufacture.name).then((response)=>{
-        //     updateTable(response.data);
-        //     sendNotification("Новая обработка стекла успешно добавлена!", "Ура!", "success");
-        // }).catch(err=>{
-        //     sendNotification("Не удалось добавить обработку стекла в базу данных!", `${err.response.data.msg}`, "danger");
-        // });
     }
 
     let updateGlassManufacture = (editedGlassManufacture) => {
@@ -111,13 +105,6 @@ export default function GlassManufactureTable() {
                     let request_json = JSON.stringify(request)
                     console.log(request_json)
                     ws.send(request_json)
-                    // apiUpdateGlassManufacture(editedGlassManufacture.dbId,
-                    //     editedGlassManufacture.name).then((response)=>{
-                    //     updateTable(response.data);
-                    //     sendNotification("Данные об обработке стекла успешно изменены!", "Ура!", "success");
-                    // }).catch(err=>{
-                    //     sendNotification("Не удалось изменить данные об обработке стекла!", `${err.response.data.msg}`, "danger");
-                    // });
                 }
             }
         });
@@ -136,13 +123,6 @@ export default function GlassManufactureTable() {
                 let request_json = JSON.stringify(request)
                 console.log(request_json)
                 ws.send(request_json)
-                // apiDeleteGlassManufacture(glass_manufacture.dbId).then((response)=>{
-                //     updateTable(response.data);
-                //     sendNotification("Обработка стекла успешно удалена!", "Ура!", "success");
-                // }).catch(err=>{
-                //     sendNotification("Не удалось удалить обработку стекла!", `${err.response.data.msg}`, "danger");
-                //     console.log(err);
-                // });
             }
         });
     }
